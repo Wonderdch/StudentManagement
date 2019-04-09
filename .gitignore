@@ -328,3 +328,7 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+/StudentManagement/StudentManagement.sln
+/StudentManagement/StudentManagement/appsettings.Development.json
+/StudentManagement/StudentManagement/appsettings.json
+/StudentManagement/StudentManagement/StudentManagement.csproj
