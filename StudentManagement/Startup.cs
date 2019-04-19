@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.StaticFiles.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -21,7 +23,7 @@ namespace StudentManagement
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.AddDirectoryBrowser();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -32,27 +34,19 @@ namespace StudentManagement
                 app.UseDeveloperExceptionPage();
             }
 
-            app.Use(async (context, next) =>
-            {
-                context.Response.ContentType = "text/plain;charset=utf-8";
+            //var defaultFilesOptions = new DefaultFilesOptions();
+            //defaultFilesOptions.DefaultFileNames.Clear();
+            //defaultFilesOptions.DefaultFileNames.Add("52abp.html");
 
-                logger.LogInformation("MW1: 传入请求");
-                await next();
-                logger.LogInformation("MW1: 传出响应");
-            });
+            var fileServerOptions = new FileServerOptions();
+            fileServerOptions.DefaultFilesOptions.DefaultFileNames.Clear();
+            fileServerOptions.DefaultFilesOptions.DefaultFileNames.Add("52abp.html");
 
-            app.Use(async (context, next) =>
-            {
-                logger.LogInformation("MW2: 传入请求");
-                await next();
-                logger.LogInformation("MW2: 传出响应");
-            });
+            app.UseFileServer(fileServerOptions);
 
             app.Run(async (context) =>
             {
-                logger.LogInformation("MW3: 传入请求");
-                await context.Response.WriteAsync("MW3：处理请求，并生成响应");
-                logger.LogInformation("MW3: 传出响应");
+                await context.Response.WriteAsync("Hello World");
             });
         }
     }
