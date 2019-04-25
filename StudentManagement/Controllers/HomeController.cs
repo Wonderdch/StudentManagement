@@ -19,18 +19,18 @@ namespace StudentManagement.Controllers
             return _studentRepository.GetStudent(1).Name;
         }
 
-        public JsonResult DetailsInJson()
+        public IActionResult Details()
         {
             var model = _studentRepository.GetStudent(1);
 
-            return Json(model);
-        }
+            // 绝对路径 需要带 .cshtml 文件扩展名
+            //return View("MyViews/Test.cshtml"); 
+            // 绝对路径（推荐写法）
+            //return View("~/MyViews/Test.cshtml");
 
-        public ObjectResult DetailsInObject()
-        {
-            var model = _studentRepository.GetStudent(1);
-
-            return new ObjectResult(model);
+            // 相对路径 无需带扩展名
+            // 相对路径的查找起点依然时 Home/Details
+            return View("../../MyViews/Test");
         }
     }
 }
