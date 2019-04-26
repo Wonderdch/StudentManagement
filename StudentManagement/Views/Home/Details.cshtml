@@ -5,20 +5,16 @@
     <title></title>
 </head>
 <body>
-    <h3>@ViewData["PageTitle"]</h3>
-
-    @{
-        var student = ViewData["Student"] as Student;
-    }
+    <h3>@ViewBag.PageTitle</h3>
 
     <div>
-        姓名 : @student.Name
+        姓名 : @ViewBag.Student.Name
     </div>
     <div>
-        邮箱 : @student.Email
+        邮箱 : @ViewBag.Student.Email
     </div>
     <div>
-        班级名称 : @student.ClassName
+        班级名称 : @ViewBag.Student.ClassName
     </div>
 </body>
 </html>
