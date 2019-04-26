@@ -1,20 +1,20 @@
-﻿@using StudentManagement.Models
+﻿@model StudentManagement.Models.Student
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
+    <title>@ViewBag.PageTitle</title>
 </head>
 <body>
     <h3>@ViewBag.PageTitle</h3>
 
     <div>
-        姓名 : @ViewBag.Student.Name
+        姓名 : @Model.Name
     </div>
     <div>
-        邮箱 : @ViewBag.Student.Email
+        邮箱 : @Model.Email
     </div>
     <div>
-        班级名称 : @ViewBag.Student.ClassName
+        班级名称 : @Model.ClassName
     </div>
 </body>
 </html>
