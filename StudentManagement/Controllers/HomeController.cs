@@ -23,14 +23,10 @@ namespace StudentManagement.Controllers
         {
             var model = _studentRepository.GetStudent(1);
 
-            // 绝对路径 需要带 .cshtml 文件扩展名
-            //return View("MyViews/Test.cshtml"); 
-            // 绝对路径（推荐写法）
-            //return View("~/MyViews/Test.cshtml");
+            ViewData["PageTitle"] = "学生详情";
+            ViewData["Student"] = model;
 
-            // 相对路径 无需带扩展名
-            // 相对路径的查找起点依然时 Home/Details
-            return View("../../MyViews/Test");
+            return View();
         }
     }
 }
