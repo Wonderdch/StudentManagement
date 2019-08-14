@@ -1,20 +1,18 @@
 ﻿@model StudentManagement.ViewModels.HomeDetailsViewModel
-<!DOCTYPE html>
-<html>
-<head>
-    <title>@Model.PageTitle</title>
-</head>
-<body>
-    <h3>@Model.PageTitle</h3>
 
-    <div>
-        姓名 : @Model.Student.Name
-    </div>
-    <div>
-        邮箱 : @Model.Student.Email
-    </div>
-    <div>
-        班级名称 : @Model.Student.ClassName
-    </div>
-</body>
-</html>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "学生详情页";
+}
+
+<h3>@Model.PageTitle</h3>
+
+<div>
+    姓名 : @Model.Student.Name
+</div>
+<div>
+    邮箱 : @Model.Student.Email
+</div>
+<div>
+    班级名称 : @Model.Student.ClassName
+</div>
