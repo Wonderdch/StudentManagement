@@ -15,9 +15,12 @@ namespace StudentManagement.Controllers
             _studentRepository = studentRepository;
         }
 
-        public string Index()
+        public ViewResult Index()
         {
-            return _studentRepository.GetStudent(1).Name;
+            // 查询所有的学生信息
+            var model = _studentRepository.GetAllStudents();
+            // 将学生列表传递到视图
+            return View(model);
         }
 
         public IActionResult Details()
