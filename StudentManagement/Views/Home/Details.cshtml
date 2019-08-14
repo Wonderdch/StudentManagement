@@ -1,20 +1,20 @@
-﻿@model StudentManagement.Models.Student
+﻿@model StudentManagement.ViewModels.HomeDetailsViewModel
 <!DOCTYPE html>
 <html>
 <head>
-    <title>@ViewBag.PageTitle</title>
+    <title>@Model.PageTitle</title>
 </head>
 <body>
-    <h3>@ViewBag.PageTitle</h3>
+    <h3>@Model.PageTitle</h3>
 
     <div>
-        姓名 : @Model.Name
+        姓名 : @Model.Student.Name
     </div>
     <div>
-        邮箱 : @Model.Email
+        邮箱 : @Model.Student.Email
     </div>
     <div>
-        班级名称 : @Model.ClassName
+        班级名称 : @Model.Student.ClassName
     </div>
 </body>
 </html>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using StudentManagement.Models;
+using StudentManagement.ViewModels;
 
 namespace StudentManagement.Controllers
 {
@@ -21,11 +22,15 @@ namespace StudentManagement.Controllers
 
         public IActionResult Details()
         {
-            ViewBag.PageTitle = "学生详情";
+            // 实例化 HomeDetailsViewModel 并存储 Student 详细信息和 PageTitle
+            var homeDetailsViewModel = new HomeDetailsViewModel
+            {
+                Student = _studentRepository.GetStudent(1),
+                PageTitle = "学生详细信息"
+            };
 
-            var model = _studentRepository.GetStudent(1);
-
-            return View(model);
+            // 将ViewModel对象传递给View()方法
+            return View(homeDetailsViewModel);
         }
     }
 }
