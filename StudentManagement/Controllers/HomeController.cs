@@ -4,7 +4,6 @@ using StudentManagement.ViewModels;
 
 namespace StudentManagement.Controllers
 {
-    [Route("[controller]/[action]")]
     public class HomeController : Controller
     {
         // 通过 readonly 保证我们只能在构造器中初始化它，不会在其它地方误修改
@@ -16,18 +15,14 @@ namespace StudentManagement.Controllers
             _studentRepository = studentRepository;
         }
 
-        [Route("")]
-        [Route("~/")]
-        [Route("~/Home")]
         public ViewResult Index()
         {
             // 查询所有的学生信息
             var students = _studentRepository.GetAllStudents();
             // 将学生列表传递到视图
-            return View("~/Views/Home/Index.cshtml", students);
+            return View(students);
         }
 
-        [Route("{id?}")]
         public IActionResult Details(int? id)
         {
             // 实例化 HomeDetailsViewModel 并存储 Student 详细信息和 PageTitle
