@@ -12,7 +12,7 @@
             </div>
             <img class="card-img-top" src="~/images/avatar.jpg" />
             <div class="card-footer text-center">
-                <a href="#" class="btn btn-primary">查看</a>
+                <a asp-controller="home" asp-action="details" asp-route-id="@student.Id" class="btn btn-primary">查看</a>
                 <a href="#" class="btn btn-primary">编辑</a>
                 <a href="#" class="btn btn-danger">删除</a>
             </div>
