@@ -35,5 +35,10 @@ namespace StudentManagement.Controllers
             // 将ViewModel对象传递给View()方法
             return View(homeDetailsViewModel);
         }
+
+        public IActionResult Create()
+        {
+            return View();
+        }
     }
 }
