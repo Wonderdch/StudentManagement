@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace StudentManagement.Models
 {
-    public class MockStudentRepository:IStudentRepository
+    public class MockStudentRepository : IStudentRepository
     {
         private readonly List<Student> _studentList;
 
@@ -25,6 +25,13 @@ namespace StudentManagement.Models
         public IEnumerable<Student> GetAllStudents()
         {
             return _studentList;
+        }
+
+        public Student Add(Student student)
+        {
+            student.Id = _studentList.Max(s => s.Id) + 1;
+            _studentList.Add(student);
+            return student;
         }
     }
 }
