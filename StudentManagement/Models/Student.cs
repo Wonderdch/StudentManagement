@@ -11,7 +11,8 @@ namespace StudentManagement.Models
         public string Name { get; set; }
 
         [Display(Name = "班级信息")]
-        public ClassNameEnum ClassName { get; set; }
+        [Required(ErrorMessage = "请选择班级")]
+        public ClassNameEnum? ClassName { get; set; }
 
         [Display(Name = "邮箱地址")]
         [Required(ErrorMessage = "请输入邮箱")]
