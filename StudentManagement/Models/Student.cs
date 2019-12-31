@@ -18,5 +18,7 @@ namespace StudentManagement.Models
         [Required(ErrorMessage = "请输入邮箱")]
         [RegularExpression(@"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", ErrorMessage = "邮箱格式不正确")]
         public string Email { get; set; }
+
+        public string PhotoPath { get; set; }
     }
 }
