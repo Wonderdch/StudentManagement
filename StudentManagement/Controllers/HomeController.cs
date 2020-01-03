@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using StudentManagement.Models;
 using StudentManagement.ViewModels;
 
@@ -9,10 +12,13 @@ namespace StudentManagement.Controllers
         // 通过 readonly 保证我们只能在构造器中初始化它，不会在其它地方误修改
         private readonly IStudentRepository _studentRepository;
 
+        private readonly IHostingEnvironment _hostingEnvironment;
+
         // 使用构造函数注入的方式注入 IStudentRepository
-        public HomeController(IStudentRepository studentRepository)
+        public HomeController(IStudentRepository studentRepository, IHostingEnvironment hostingEnvironment)
         {
             _studentRepository = studentRepository;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         public ViewResult Index()
@@ -43,10 +49,30 @@ namespace StudentManagement.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Student student)
+        public IActionResult Create(StudentCreateViewModel model)
         {
             if (ModelState.IsValid)
             {
+                string uniqueFileName = null;
+
+                if (model.Photo != null)
+                {
+                    var uploadFolder = Path.Combine(_hostingEnvironment.WebRootPath, "images");
+                    uniqueFileName = Guid.NewGuid() + "_" + model.Photo.FileName;
+
+                    var filePath = Path.Combine(uploadFolder, uniqueFileName);
+
+                    model.Photo.CopyTo(new FileStream(filePath, FileMode.Create));
+                }
+
+                var student = new Student
+                {
+                    Name = model.Name,
+                    Email = model.Email,
+                    ClassName = model.ClassName,
+                    PhotoPath = uniqueFileName
+                };
+
                 var newStudent = _studentRepository.Add(student);
 
                 return RedirectToAction("Details", new { id = newStudent.Id });
