@@ -53,29 +53,15 @@ namespace StudentManagement.Controllers
         {
             if (ModelState.IsValid)
             {
-                string uniqueFileName = null;
-
-                if (model.Photo != null)
-                {
-                    var uploadFolder = Path.Combine(_hostingEnvironment.WebRootPath, "images");
-                    uniqueFileName = Guid.NewGuid() + "_" + model.Photo.FileName;
-
-                    var filePath = Path.Combine(uploadFolder, uniqueFileName);
-
-                    model.Photo.CopyTo(new FileStream(filePath, FileMode.Create));
-                }
-
                 var student = new Student
                 {
                     Name = model.Name,
                     Email = model.Email,
                     ClassName = model.ClassName,
-                    PhotoPath = uniqueFileName
+                    PhotoPath = ProcessUploadedFile(model)
                 };
 
-                var newStudent = _studentRepository.Add(student);
-
-                return RedirectToAction("Details", new { id = newStudent.Id });
+                return RedirectToAction("Details", new { id = student.Id });
             }
 
             return View();
@@ -96,6 +82,56 @@ namespace StudentManagement.Controllers
             };
 
             return View(stuentEditViewModel);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(StudentEditViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var student = _studentRepository.GetStudent(model.Id);
+
+                student.Email = model.Email;
+                student.Name = model.Name;
+                student.ClassName = model.ClassName;
+
+                if (model.Photo != null)
+                {
+                    if (model.ExistingPhotoPath != null)
+                    {
+                        var filePath = Path.Combine(_hostingEnvironment.WebRootPath, "images", model.ExistingPhotoPath);
+                        System.IO.File.Delete(filePath);
+                    }
+
+                    student.PhotoPath = ProcessUploadedFile(model);
+                }
+
+                _studentRepository.Update(student);
+
+                return RedirectToAction("Index");
+            }
+
+            return View(model);
+        }
+
+        private string ProcessUploadedFile(StudentCreateViewModel model)
+        {
+            var uniqueFileName = "";
+
+            if (model.Photo != null)
+            {
+                var uploadFolder = Path.Combine(_hostingEnvironment.WebRootPath, "images");
+                uniqueFileName = Guid.NewGuid() + "_" + model.Photo.FileName;
+
+                var photoPath = Path.Combine(uploadFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(photoPath, FileMode.Create))
+                {
+                    model.Photo.CopyTo(fileStream);
+                }
+            }
+
+            return uniqueFileName;
         }
     }
 }
