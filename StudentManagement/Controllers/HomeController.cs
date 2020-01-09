@@ -29,12 +29,20 @@ namespace StudentManagement.Controllers
             return View(students);
         }
 
-        public IActionResult Details(int? id)
+        public IActionResult Details(int id)
         {
+            var student = _studentRepository.GetStudent(id);
+
+            if (student == null)
+            {
+                Response.StatusCode = 404;
+                return View("StudentNotFound", id);
+            }
+
             // 实例化 HomeDetailsViewModel 并存储 Student 详细信息和 PageTitle
             var homeDetailsViewModel = new HomeDetailsViewModel
             {
-                Student = _studentRepository.GetStudent(id ?? 1),
+                Student = student,
                 PageTitle = "学生详细信息"
             };
 
