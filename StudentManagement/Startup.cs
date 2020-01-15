@@ -37,10 +37,13 @@ namespace StudentManagement
             {
                 app.UseDeveloperExceptionPage();
             }
+            else
+            {
+                //app.UseStatusCodePagesWithRedirects("/Error/{0}");
+                app.UseStatusCodePagesWithReExecute("/Error/{0}");
+            }
 
             app.UseStaticFiles();
-
-            //app.UseMvc();
 
             app.UseMvc(routes =>
             {
