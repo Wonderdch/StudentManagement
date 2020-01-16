@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +25,9 @@ namespace StudentManagement
                 options => options.UseSqlServer(_configuration.GetConnectionString("StudentDBConnection"))
             );
 
+            // 1.添加 Identity 服务    2.使用 AppDbContext 存储与身份认证相关的数据
+            services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
+
             //services.AddMvcCore().AddJsonFormatters();
             services.AddMvc().AddXmlSerializerFormatters();
 
@@ -46,6 +50,8 @@ namespace StudentManagement
             }
 
             app.UseStaticFiles();
+
+            app.UseAuthentication();
 
             app.UseMvc(routes =>
             {
