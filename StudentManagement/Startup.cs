@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StudentManagement.Middlewares;
 using StudentManagement.Models;
 
 namespace StudentManagement
@@ -25,8 +26,17 @@ namespace StudentManagement
                 options => options.UseSqlServer(_configuration.GetConnectionString("StudentDBConnection"))
             );
 
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequiredLength = 6;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+            });
+
             // 1.添加 Identity 服务    2.使用 AppDbContext 存储与身份认证相关的数据
-            services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddErrorDescriber<CustomIdentityErrorDescriptor>()
+                .AddEntityFrameworkStores<AppDbContext>();
 
             //services.AddMvcCore().AddJsonFormatters();
             services.AddMvc().AddXmlSerializerFormatters();
