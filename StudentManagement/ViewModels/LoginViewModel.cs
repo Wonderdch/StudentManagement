@@ -4,12 +4,12 @@ namespace StudentManagement.ViewModels
 {
     public class LoginViewModel
     {
-        [Required]
+        [Required(ErrorMessage = "邮箱地址不能为空")]
         [EmailAddress]
         [Display(Name = "邮箱地址")]
         public string Email { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "密码不能为空")]
         [DataType(DataType.Password)]
         [Display(Name = "密码")]
         public string Password { get; set; }
