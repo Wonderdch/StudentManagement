@@ -363,3 +363,5 @@ ASALocalRun/
 /StudentManagement/wwwroot/lib/jquery/core.js
 /StudentManagement/Migrations
 /StudentManagement/wwwroot/images
+/StudentManagement/wwwroot/lib/jquery-validate
+/StudentManagement/wwwroot/lib/jquery-validation-unobtrusive

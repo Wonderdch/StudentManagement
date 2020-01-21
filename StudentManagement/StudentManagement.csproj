@@ -32,6 +32,6 @@
     </Content>
   </ItemGroup>
 
-  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
+  <ProjectExtensions><VisualStudio><UserProperties libman_1json__JSONSchema="http://json.schemastore.org/mycode" /></VisualStudio></ProjectExtensions>
 
 </Project>
