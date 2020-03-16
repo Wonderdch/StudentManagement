@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 
 namespace StudentManagement.ViewModels
 {
@@ -7,6 +8,7 @@ namespace StudentManagement.ViewModels
         [Required(ErrorMessage = "邮箱地址不能为空")]
         [EmailAddress]
         [Display(Name = "邮箱地址")]
+        [Remote(action: "IsEmailInUse", controller: "Account")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "密码不能为空")]
