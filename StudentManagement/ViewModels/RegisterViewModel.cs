@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using StudentManagement.CustomeUtil;
 
 namespace StudentManagement.ViewModels
 {
@@ -9,6 +10,7 @@ namespace StudentManagement.ViewModels
         [EmailAddress]
         [Display(Name = "邮箱地址")]
         [Remote(action: "IsEmailInUse", controller: "Account")]
+        [ValidEmailDomain(allowedDomain: "52abp.com", ErrorMessage = "邮箱后缀必须是 52abp.com")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "密码不能为空")]
