@@ -23,5 +23,8 @@ namespace StudentManagement.ViewModels
         [Compare("Password", ErrorMessage = "确认密码与密码不一致，请重新输入！")]
         [Display(Name = "确认密码")]
         public string ConfirmPassword { get; set; }
+
+        [Display(Name = "城市")]
+        public string City { get; set; }
     }
 }
