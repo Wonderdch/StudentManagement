@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using StudentManagement.ViewModels;
@@ -35,7 +36,7 @@ namespace StudentManagement.Controllers
 
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("ListRoles", "Admin");
                 }
 
                 foreach (var error in result.Errors)
@@ -45,6 +46,13 @@ namespace StudentManagement.Controllers
             }
 
             return View(model);
+        }
+
+        public IActionResult ListRoles()
+        {
+            var roles = _roleManager.Roles;
+
+            return View(roles);
         }
     }
 }
