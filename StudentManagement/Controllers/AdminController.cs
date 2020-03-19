@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DiagnosticAdapter.Internal;
 using StudentManagement.Models;
 using StudentManagement.ViewModels;
 
@@ -113,6 +115,82 @@ namespace StudentManagement.Controllers
             }
 
             return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditUsersInRole(string roleId)
+        {
+            ViewBag.roleId = roleId;
+
+            var role = await _roleManager.FindByIdAsync(roleId);
+
+            if (role == null)
+            {
+                ViewBag.ErrorMessage = $"角色 ID 为 {roleId} 的角色不存在";
+                return View("NotFound");
+            }
+
+            var model = new List<UserRoleViewModel>();
+
+            foreach (var user in _userManager.Users)
+            {
+                var userRoleViewModel = new UserRoleViewModel
+                {
+                    UserId = user.Id,
+                    UserName = user.UserName,
+                    IsSelected = await _userManager.IsInRoleAsync(user, role.Name)
+                };
+
+                model.Add(userRoleViewModel);
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditUsersInRole(List<UserRoleViewModel> model, string roleId)
+        {
+            var role = await _roleManager.FindByIdAsync(roleId);
+
+            if (role == null)
+            {
+                ViewBag.ErrorMessage = $"角色 ID 为 {roleId} 的角色不存在";
+                return View("NotFound");
+            }
+
+            for (var i = 0; i < model.Count; i++)
+            {
+                var userRoleVM = model[i];
+                var user = await _userManager.FindByIdAsync(userRoleVM.UserId);
+
+                // 判断当前用户是否已属于该角色且被选中
+                // 不属于的话，要添加进来；没有选中的话要移除出来
+
+                var isInRole = await _userManager.IsInRoleAsync(user, role.Name);
+
+                IdentityResult result;
+
+                // 被选中，但尚不属于该角色
+                if (userRoleVM.IsSelected && !isInRole)
+                {
+                    result = await _userManager.AddToRoleAsync(user, role.Name);
+                }
+                // 本来属于该角色，但未被选中
+                else if (!userRoleVM.IsSelected && isInRole)
+                {
+                    result = await _userManager.RemoveFromRoleAsync(user, role.Name);
+                }
+                else continue;
+
+                if (result.Succeeded)
+                {
+                    if (i < model.Count - 1) continue;
+
+                    return RedirectToAction("EditRole", new { id = roleId });
+                }
+            }
+
+            return RedirectToAction("EditRole", new { id = roleId });
         }
     }
 }

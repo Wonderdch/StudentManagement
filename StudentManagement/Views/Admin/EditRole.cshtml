@@ -1,4 +1,5 @@
-﻿@model EditRoleViewModel
+﻿@using Microsoft.EntityFrameworkCore
+@model EditRoleViewModel
 
 @{
     ViewBag.Title = "编辑角色";
@@ -47,8 +48,7 @@
             }
         </div>
         <div class="card-footer">
-            <a class="btn btn-primary" style="width: auto" asp-action="CreateRole" asp-controller="Admin">添加用户</a>
-            <a class="btn btn-danger" style="width: auto" asp-action="CreateRole" asp-controller="Admin">删除用户</a>
+            <a class="btn btn-outline-primary" style="width: auto" asp-action="EditUsersInRole" asp-controller="Admin" asp-route-roleid="@Model.Id">从角色中添加或删除用户</a>
         </div>
     </div>
 </form>
