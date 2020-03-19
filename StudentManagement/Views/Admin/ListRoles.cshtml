@@ -18,8 +18,8 @@
                 <h5 class="card-title">@role.Name</h5>
             </div>
             <div class="card-footer">
-                <a class="btn btn-primary mb-3" style="width: auto" asp-action="CreateRole" asp-controller="Admin">编辑</a>
-                <a class="btn btn-danger mb-3" style="width: auto" asp-action="CreateRole" asp-controller="Admin">删除</a>
+                <a class="btn btn-primary" style="width: auto" asp-action="EditRole" asp-controller="Admin" asp-route-id="@role.Id">编辑</a>
+                <a class="btn btn-danger" style="width: auto" asp-action="CreateRole" asp-controller="Admin">删除</a>
             </div>
         </div>
     }
