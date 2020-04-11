@@ -49,6 +49,11 @@ namespace StudentManagement.Controllers
 
                 if (result.Succeeded)
                 {
+                    if (_signInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+                    {
+                        return RedirectToAction("ListUsers", "Admin");
+                    }
+
                     await _signInManager.SignInAsync(user, false);
 
                     return RedirectToAction("Index", "Home");

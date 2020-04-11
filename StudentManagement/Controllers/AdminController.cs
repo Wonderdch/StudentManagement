@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DiagnosticAdapter.Internal;
 using StudentManagement.Models;
 using StudentManagement.ViewModels;
 
 namespace StudentManagement.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -20,6 +21,8 @@ namespace StudentManagement.Controllers
             _roleManager = roleManager;
             _userManager = userManager;
         }
+
+        #region 角色管理
 
         [HttpGet]
         public IActionResult CreateRole()
@@ -192,5 +195,32 @@ namespace StudentManagement.Controllers
 
             return RedirectToAction("EditRole", new { id = roleId });
         }
+
+        #endregion
+
+        #region 用户管理
+
+        [HttpGet]
+        public IActionResult ListUsers()
+        {
+            // ToList 提前放到内存中，避免滞后到 View 中处理
+            var users = _userManager.Users.ToList();
+
+            return View(users);
+        }
+
+        [HttpPost]
+        public IActionResult EditUser()
+        {
+            return null;
+        }
+
+        [HttpPost]
+        public IActionResult DeleteUser()
+        {
+            return null;
+        }
+
+        #endregion
     }
 }
