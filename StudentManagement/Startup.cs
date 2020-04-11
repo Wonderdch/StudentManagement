@@ -35,6 +35,11 @@ namespace StudentManagement
                 options.Password.RequireUppercase = false;
             });
 
+            //services.ConfigureApplicationCookie(options =>
+            //{
+            //    options.AccessDeniedPath = "/Account/Fangyu";
+            //});
+
             // 1.添加 Identity 服务    2.使用 AppDbContext 存储与身份认证相关的数据
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddErrorDescriber<CustomIdentityErrorDescriptor>()

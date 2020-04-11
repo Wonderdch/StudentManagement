@@ -1,5 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html>
 <head>
@@ -40,6 +39,12 @@
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="Home" asp-action="Create">添加学生</a>
                     </li>
+                    @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Admin" asp-action="ListRoles">角色管理</a>
+                        </li>
+                    }
                 </ul>
                 <ul class="navbar-nav ml-auto">
                     @if (SignInManager.IsSignedIn(User))
