@@ -196,6 +196,32 @@ namespace StudentManagement.Controllers
             return RedirectToAction("EditRole", new { id = roleId });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> DeleteRole(string id)
+        {
+            var role = await _roleManager.FindByIdAsync(id);
+
+            if (role == null)
+            {
+                ViewBag.ErrorMessage = $"角色 Id {id} 的信息不存在，请重试。";
+                return View("NotFound");
+            }
+
+            var result = await _roleManager.DeleteAsync(role);
+
+            if (result.Succeeded)
+            {
+                return RedirectToAction("ListRoles");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+
+            return View("ListRoles");
+        }
+
         #endregion
 
         #region 用户管理
@@ -270,9 +296,29 @@ namespace StudentManagement.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteUser()
+        public async Task<IActionResult> DeleteUser(string id)
         {
-            return null;
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"无法找到 Id {id} 的用户";
+                return View("NotFound");
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+
+            if (result.Succeeded)
+            {
+                return RedirectToAction("ListUsers");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+
+            return View("ListUsers");
         }
 
         #endregion
