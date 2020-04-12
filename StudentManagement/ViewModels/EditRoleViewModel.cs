@@ -5,7 +5,7 @@ namespace StudentManagement.ViewModels
 {
     public class EditRoleViewModel
     {
-        [Display(Name = "角色Id")]
+        [Display(Name = "角色 Id")]
         public string Id { get; set; }
 
         [Required]
