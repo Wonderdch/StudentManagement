@@ -237,6 +237,67 @@ namespace StudentManagement.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ManageUserRoles(string userId)
+        {
+            ViewBag.userId = userId;
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"无法找到 Id {userId} 的用户";
+                return View("NotFound");
+            }
+
+            var model = new List<RolesInUserViewModel>();
+            foreach (var role in _roleManager.Roles)
+            {
+                var rolesInUserViewModel = new RolesInUserViewModel
+                {
+                    RoleId = role.Id,
+                    RoleName = role.Name,
+                    IsSelected = await _userManager.IsInRoleAsync(user, role.Name)
+                };
+
+                model.Add(rolesInUserViewModel);
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ManageUserRoles(List<RolesInUserViewModel> model, string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"无法找到 Id {userId} 的用户";
+                return View("NotFound");
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            // 移除当前用户中的所有角色信息
+            var removeRolesResult = await _userManager.RemoveFromRolesAsync(user, roles);
+            if (!removeRolesResult.Succeeded)
+            {
+                ModelState.AddModelError("", "无法删除用户中的现有角色");
+                return View(model);
+            }
+
+            // 查询出模型列表中选中的 RoleName 添加到用户中
+            var addRolesResult = await _userManager.AddToRolesAsync(user, model.Where(x => x.IsSelected).Select(y => y.RoleName));
+            if (!addRolesResult.Succeeded)
+            {
+                ModelState.AddModelError("", "无法向用户中添加选定的角色");
+                return View(model);
+            }
+
+            return RedirectToAction("EditUser", new { Id = userId });
+        }
+
         #endregion
 
         #region 用户管理
