@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using StudentManagement.Models;
 using StudentManagement.ViewModels;
 
@@ -16,10 +18,13 @@ namespace StudentManagement.Controllers
 
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public AdminController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
+        private readonly ILogger<AdminController> _logger;
+
+        public AdminController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager, ILogger<AdminController> logger)
         {
             _roleManager = roleManager;
             _userManager = userManager;
+            _logger = logger;
         }
 
         #region 角色管理
@@ -207,19 +212,29 @@ namespace StudentManagement.Controllers
                 return View("NotFound");
             }
 
-            var result = await _roleManager.DeleteAsync(role);
-
-            if (result.Succeeded)
+            try
             {
-                return RedirectToAction("ListRoles");
-            }
+                var result = await _roleManager.DeleteAsync(role);
 
-            foreach (var error in result.Errors)
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("ListRoles");
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+
+                return View("ListRoles");
+            }
+            catch (DbUpdateException ex)
             {
-                ModelState.AddModelError("", error.Description);
+                _logger.LogError($"发生异常 {ex}");
+                ViewBag.ErrorTitle = $"角色 {role.Name} 正在被使用中";
+                ViewBag.ErrorMessage = $"无法删除 {role.Name} 角色，因为此角色中已存在用户。需先删除该角色中的用户，再尝试删除角色本身。";
+                return View("Error");
             }
-
-            return View("ListRoles");
         }
 
         #endregion

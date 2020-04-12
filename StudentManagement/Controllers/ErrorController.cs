@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace StudentManagement.Controllers
 {
+    [AllowAnonymous]
     public class ErrorController : Controller
     {
         private readonly ILogger<ErrorController> _logger;
@@ -34,13 +35,11 @@ namespace StudentManagement.Controllers
                     _logger.LogWarning($"发生了一个 404 错误。\n路径：{statusCodeResult.OriginalPath}\n查询字符串：{statusCodeResult.OriginalQueryString}");
 
                     break;
-
             }
 
             return View("NotFound");
         }
 
-        [AllowAnonymous]
         [Route("Error")]
         public IActionResult Error()
         {
@@ -48,11 +47,11 @@ namespace StudentManagement.Controllers
 
             _logger.LogError($"路径：{exceptionHandlerPathFeature.Path}\n产生了一个错误：{exceptionHandlerPathFeature.Error}");
 
+            return View();
+
             //ViewBag.ExceptionPath = exceptionHandlerPathFeature.Path;
             //ViewBag.ExceptionMessage = exceptionHandlerPathFeature.Error.Message;
             //ViewBag.StackTrace = exceptionHandlerPathFeature.Error.StackTrace;
-
-            return View();
         }
     }
 }

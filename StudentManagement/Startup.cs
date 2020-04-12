@@ -62,12 +62,10 @@ namespace StudentManagement
             {
                 app.UseDeveloperExceptionPage();
             }
-            else
+            else if (env.IsStaging() || env.IsProduction() || env.IsEnvironment("UAT"))
             {
                 app.UseExceptionHandler("/Error");
                 app.UseStatusCodePagesWithReExecute("/Error/{0}");
-
-                //app.UseStatusCodePagesWithRedirects("/Error/{0}");
             }
 
             app.UseStaticFiles();

@@ -1,0 +1,16 @@
+﻿@{
+    ViewBag.Title = "异常错误页面";
+}
+
+@if (string.IsNullOrEmpty(ViewBag.ErrorTitle))
+{
+    <h3>程序请求时，发生了一个内部错误，我们会反馈给开发团队，尽快解决该问题</h3>
+
+    <h5>请通过 ltm@xxx.org 与我们取得联系</h5>
+}
+else
+{
+    <h1 class="text-danger">@ViewBag.ErrorTitle</h1>
+
+    <h5 class="text-danger">@ViewBag.ErrorMessage</h5>
+}
