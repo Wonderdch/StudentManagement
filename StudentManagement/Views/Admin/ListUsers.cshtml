@@ -18,12 +18,11 @@
                 <h5 class="card-title">@user.UserName</h5>
             </div>
             <div class="card-footer">
-
-                @*<button type="submit" onclick="return confirm('您确定要删除:@user.UserName 吗？')" class="btn btn-danger">删除</button>*@
                 <form method="post" asp-action="DeleteUser" asp-route-id="@user.Id">
+                    @*这个 a 标签通过 GET 请求，不会和下面的 submit 冲突*@
                     <a asp-action="EditUser" asp-controller="Admin" asp-route-id="@user.Id" class="btn btn-primary">编辑</a>
                     <span id="confirmDeleteSpan_@user.Id" style="display: none">
-                        <span>你确定你要删除？</span>
+                        <span>确定删除？</span>
                         <button type="submit" class="btn btn-danger">是</button>
                         <a href="#" class="btn btn-primary" onclick="confirmDelete('@user.Id', false)">否</a>
                     </span>
@@ -46,4 +45,8 @@ else
             <a asp-action="Register" asp-controller="Account" class="btn btn-primary">创建用户</a>
         </div>
     </div>
+}
+
+@section Scripts{
+    <script src="~/js/CustomScript.js" asp-append-version="true"></script>
 }
