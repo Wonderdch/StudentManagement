@@ -89,7 +89,9 @@
             }
         </div>
         <div class="card-footer">
-            <a href="#" class="btn btn-primary" style="width: auto">管理声明</a>
+            <a asp-action="ManageUserClaims" asp-route-userId="@Model.Id" style="width: auto" class="btn btn-primary">
+                管理角色
+            </a>
         </div>
     </div>
 
