@@ -45,6 +45,10 @@ namespace StudentManagement
                 .AddErrorDescriber<CustomIdentityErrorDescriptor>()
                 .AddEntityFrameworkStores<AppDbContext>();
 
+            // 使用声明式授权
+            services.AddAuthorization(opt =>
+                opt.AddPolicy("DeleteRolePolicy", policy => policy.RequireClaim("Delete Role")));
+
             //services.AddMvcCore().AddJsonFormatters();
             services.AddMvc(config =>
             {

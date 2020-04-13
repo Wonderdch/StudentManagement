@@ -202,6 +202,7 @@ namespace StudentManagement.Controllers
             return RedirectToAction("EditRole", new { id = roleId });
         }
 
+        [Authorize(policy: "DeleteRolePolicy")]
         [HttpPost]
         public async Task<IActionResult> DeleteRole(string id)
         {
