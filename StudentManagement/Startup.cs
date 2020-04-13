@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -35,10 +36,21 @@ namespace StudentManagement
                 options.Password.RequireUppercase = false;
             });
 
-            //services.ConfigureApplicationCookie(options =>
-            //{
-            //    options.AccessDeniedPath = "/Account/Fangyu";
-            //});
+            services.ConfigureApplicationCookie(options =>
+            {
+                // 修改拒绝访问的路由地址
+                options.AccessDeniedPath = "/Admin/AccessDenied";
+                // 修改登录地址的路由
+                //options.LoginPath = new PathString("/Admin/Login");
+                // 修改注销地址的路由
+                //options.LogoutPath = new PathString("Admin/LogOut");
+                // 统一系统全局的 Cookie 名称
+                options.Cookie.Name = "MockSchoolCookieName";
+                // 登录用户 Cookie 的有效期
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+                // 是否对 Cookie 启用滑动过期时间
+                options.SlidingExpiration = true;
+            });
 
             // 1.添加 Identity 服务    2.使用 AppDbContext 存储与身份认证相关的数据
             services.AddIdentity<ApplicationUser, IdentityRole>()

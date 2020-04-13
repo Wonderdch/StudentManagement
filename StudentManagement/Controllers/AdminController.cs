@@ -469,5 +469,16 @@ namespace StudentManagement.Controllers
         }
 
         #endregion 用户管理
+
+        #region 拒绝访问
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+        #endregion
     }
 }
