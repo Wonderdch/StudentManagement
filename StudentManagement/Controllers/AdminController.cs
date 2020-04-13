@@ -70,6 +70,7 @@ namespace StudentManagement.Controllers
             return View(roles);
         }
 
+        [Authorize(policy: "EditRolePolicy")]
         [HttpGet]
         public async Task<IActionResult> EditRole(string id)
         {

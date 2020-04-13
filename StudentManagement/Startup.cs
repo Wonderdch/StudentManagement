@@ -46,8 +46,17 @@ namespace StudentManagement
                 .AddEntityFrameworkStores<AppDbContext>();
 
             // 使用声明式授权
-            services.AddAuthorization(opt =>
-                opt.AddPolicy("DeleteRolePolicy", policy => policy.RequireClaim("Delete Role")));
+            services.AddAuthorization(options =>
+            {
+                // 策略结合声明授权
+                options.AddPolicy("DeleteRolePolicy", policy => policy.RequireClaim("Delete Role"));
+                options.AddPolicy("AdminRolePolicy", policy => policy.RequireRole("Admin"));
+
+                // 策略结合多个角色进行授权
+                options.AddPolicy("SuperAdminPolicy", policy => policy.RequireRole("Admin", "User"));
+
+                options.AddPolicy("EditRolePolicy", policy => policy.RequireClaim("Edit Role"));
+            });
 
             //services.AddMvcCore().AddJsonFormatters();
             services.AddMvc(config =>
