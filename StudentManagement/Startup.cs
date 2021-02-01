@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StudentManagement.Data;
 using StudentManagement.Middlewares;
 using StudentManagement.Models;
 
@@ -96,6 +97,8 @@ namespace StudentManagement
             app.UseStaticFiles();
 
             app.UseAuthentication();
+
+            app.UseDataInitializer();
 
             app.UseMvc(routes =>
             {
