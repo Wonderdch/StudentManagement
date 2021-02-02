@@ -68,10 +68,12 @@ namespace StudentManagement
                 // 策略结合多个角色进行授权
                 options.AddPolicy("SuperAdminPolicy", policy => policy.RequireRole("Admin", "User"));
 
+                // Claim Type 不区分大小写； Claim Value 区分大小写
+                //options.AddPolicy("EditRolePolicy", policy => policy.RequireClaim("Edit Role", "true"));
+
                 //options.AddPolicy("AllowedCountryPolicy", policy => policy.RequireClaim("Country", "China", "USA", "UK"));
 
-                // Claim Type 不区分大小写； Claim Value 区分大小写
-                options.AddPolicy("EditRolePolicy", policy => policy.RequireClaim("Edit Role", "true"));
+                options.AddPolicy("EditRolePolicy", policy => policy.RequireAssertion(AuthorizeAccess));
             });
 
             //services.AddMvcCore().AddJsonFormatters();
@@ -107,6 +109,13 @@ namespace StudentManagement
             {
                 routes.MapRoute("default", "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        // 授权访问
+        private static bool AuthorizeAccess(AuthorizationHandlerContext context)
+        {
+            return context.User.IsInRole("Admin") && context.User.HasClaim(claim => claim.Type == "Edit Role" && claim.Value == "true") ||
+                   context.User.IsInRole("Super Admin");
         }
     }
 }
