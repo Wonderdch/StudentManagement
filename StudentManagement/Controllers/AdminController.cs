@@ -273,7 +273,7 @@ namespace StudentManagement.Controllers
                 Email = user.Email,
                 UserName = user.UserName,
                 City = user.City,
-                Claims = userClaims.Select(c => c.Value).ToList(),
+                Claims = userClaims,
                 Roles = userRoles
             };
 
@@ -458,7 +458,7 @@ namespace StudentManagement.Controllers
             }
 
             var addClaimsResult = await _userManager.AddClaimsAsync(user,
-                model.Claims.Where(c => c.IsSelected).Select(c => new Claim(c.ClaimType, c.ClaimType)));
+                model.Claims.Select(c => new Claim(c.ClaimType, c.IsSelected ? "true" : "false")));
             if (!addClaimsResult.Succeeded)
             {
                 ModelState.AddModelError("", "无法向用户添加选定的声明");

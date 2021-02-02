@@ -68,7 +68,10 @@ namespace StudentManagement
                 // 策略结合多个角色进行授权
                 options.AddPolicy("SuperAdminPolicy", policy => policy.RequireRole("Admin", "User"));
 
-                options.AddPolicy("EditRolePolicy", policy => policy.RequireClaim("Edit Role"));
+                //options.AddPolicy("AllowedCountryPolicy", policy => policy.RequireClaim("Country", "China", "USA", "UK"));
+
+                // Claim Type 不区分大小写； Claim Value 区分大小写
+                options.AddPolicy("EditRolePolicy", policy => policy.RequireClaim("Edit Role", "true"));
             });
 
             //services.AddMvcCore().AddJsonFormatters();

@@ -80,7 +80,7 @@
             {
                 foreach (var claim in Model.Claims)
                 {
-                    <h5 class="card-title">@claim</h5>
+                    <h5 class="card-title">@claim.Type:@claim.Value</h5>
                 }
             }
             else
