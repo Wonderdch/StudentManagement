@@ -38,6 +38,10 @@ namespace StudentManagement.Security
                     // 成功满足需求
                     context.Succeed(requirement);
                 }
+                else
+                {
+                    context.Fail();
+                }
             }
 
             return Task.CompletedTask;
