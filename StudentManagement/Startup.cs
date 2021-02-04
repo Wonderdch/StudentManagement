@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using StudentManagement.Data;
 using StudentManagement.Middlewares;
 using StudentManagement.Models;
+using StudentManagement.Security;
 
 namespace StudentManagement
 {
@@ -26,6 +27,9 @@ namespace StudentManagement
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            // 注入HttpContextAccessor
+            services.AddHttpContextAccessor();
+
             services.AddDbContextPool<AppDbContext>(
                 options => options.UseSqlServer(_configuration.GetConnectionString("StudentDBConnection"))
             );
@@ -73,7 +77,10 @@ namespace StudentManagement
 
                 //options.AddPolicy("AllowedCountryPolicy", policy => policy.RequireClaim("Country", "China", "USA", "UK"));
 
-                options.AddPolicy("EditRolePolicy", policy => policy.RequireAssertion(AuthorizeAccess));
+                //options.AddPolicy("EditRolePolicy", policy => policy.RequireAssertion(AuthorizeAccess));
+
+                options.AddPolicy("EditRolePolicy", policy => policy.AddRequirements(new ManageAdminRolesAndClaimsRequirement()));
+                options.InvokeHandlersAfterFailure = false;
             });
 
             //services.AddMvcCore().AddJsonFormatters();
@@ -84,6 +91,8 @@ namespace StudentManagement
             }).AddXmlSerializerFormatters();
 
             services.AddScoped<IStudentRepository, SQLStudentRepository>();
+
+            services.AddSingleton<IAuthorizationHandler, CanEditOnlyOtherAdminRolesAndClaimsHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

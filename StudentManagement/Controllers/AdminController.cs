@@ -339,6 +339,7 @@ namespace StudentManagement.Controllers
             return View("ListUsers");
         }
 
+        [Authorize(Policy = "EditRolePolicy")]
         [HttpGet]
         public async Task<IActionResult> ManageUserRoles(string userId)
         {
