@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -62,9 +64,16 @@ namespace StudentManagement.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login()
+        [AllowAnonymous]
+        public async Task<IActionResult> Login(string returnUrl)
         {
-            return View();
+            var model = new LoginViewModel
+            {
+                ReturnUrl = returnUrl,
+                ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList()
+            };
+
+            return View(model);
         }
 
         [HttpPost]
@@ -90,6 +99,89 @@ namespace StudentManagement.Controllers
 
             return View(model);
         }
+
+        #region 扩展登录
+
+        [HttpPost]
+        public IActionResult ExternalLogin(string provider, string returnUrl)
+        {
+            var redirectUrl = Url.Action("ExternalLoginCallback", "Account", new { ReturnUrl = returnUrl });
+
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+
+            return new ChallengeResult(provider, properties);
+        }
+
+        public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
+        {
+            returnUrl = returnUrl ?? Url.Content("~/");
+
+            var loginViewModel = new LoginViewModel
+            {
+                ReturnUrl = returnUrl,
+                ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList()
+            };
+
+            if (remoteError != null)
+            {
+                ModelState.AddModelError(string.Empty, $"外部提供程序错误: {remoteError}");
+
+                return View("Login", loginViewModel);
+            }
+
+            // 从外部登录提供者,即微软账户体系中，获取关于用户的登录信息。
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                ModelState.AddModelError(string.Empty, "加载外部登录信息出错。");
+
+                return View("Login", loginViewModel);
+            }
+
+            //如果用户之前已经登录过了，会在 AspNetUserLogins 表有对应的记录，这个时候无需创建新的记录，直接使用当前记录登录系统即可。
+            var signInResult = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey,
+                isPersistent: false, bypassTwoFactor: true);
+
+            if (signInResult.Succeeded)
+            {
+                return LocalRedirect(returnUrl);
+            }
+
+            // 如果 AspNetUserLogins 表中没有记录，则代表用户没有一个本地帐户，这个时候我们就需要创建一个记录了。
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+
+            if (email != null)
+            {
+                // 通过邮箱地址去查询用户是否已存在
+                var user = await _userManager.FindByEmailAsync(email);
+
+                if (user == null)
+                {
+                    user = new ApplicationUser
+                    {
+                        UserName = info.Principal.FindFirstValue(ClaimTypes.Email),
+                        Email = info.Principal.FindFirstValue(ClaimTypes.Email)
+                    };
+
+                    // 如果不存在，则创建一个用户，但是这个用户没有密码。
+                    await _userManager.CreateAsync(user);
+                }
+
+                // 在 AspNetUserLogins 表中,添加一行用户数据，然后将当前用户登录到系统中
+                await _userManager.AddLoginAsync(user, info);
+                await _signInManager.SignInAsync(user, isPersistent: false);
+
+                return LocalRedirect(returnUrl);
+            }
+
+            // 如果我们获取不到电子邮件地址，我们需要将请求重定向到错误视图中。
+            ViewBag.ErrorTitle = $"我们无法从提供商:{info.LoginProvider}中解析到您的邮件地址 ";
+            ViewBag.ErrorMessage = "请通过联系 ltm@ddxc.org 寻求技术支持。";
+
+            return View("Error");
+        }
+
+        #endregion
 
         [HttpPost]
         public async Task<IActionResult> Logout()

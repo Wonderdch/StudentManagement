@@ -83,6 +83,12 @@ namespace StudentManagement
                 options.InvokeHandlersAfterFailure = false;
             });
 
+            services.AddAuthentication().AddMicrosoftAccount(opt =>
+            {
+                opt.ClientId = _configuration["Authentication:Microsoft:ClientId"];
+                opt.ClientSecret = _configuration["Authentication:Microsoft:ClientSecret"];
+            });
+
             //services.AddMvcCore().AddJsonFormatters();
             services.AddMvc(config =>
             {

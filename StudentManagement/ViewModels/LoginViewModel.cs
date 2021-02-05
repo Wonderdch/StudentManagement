@@ -1,7 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authentication;
 
 namespace StudentManagement.ViewModels
 {
+    /// <summary>
+    /// 登录视图模型
+    /// </summary>
     public class LoginViewModel
     {
         [Required(ErrorMessage = "邮箱地址不能为空")]
@@ -16,5 +21,9 @@ namespace StudentManagement.ViewModels
 
         [Display(Name = "记住我")]
         public bool RememberMe { get; set; }
+
+        public string ReturnUrl { get; set; }
+
+        public IList<AuthenticationScheme> ExternalLogins { get; set; }
     }
 }
