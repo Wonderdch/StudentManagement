@@ -79,8 +79,18 @@ namespace StudentManagement.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl)
         {
+            model.ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
             if (ModelState.IsValid)
             {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user != null && !user.EmailConfirmed &&
+                    (await _userManager.CheckPasswordAsync(user, model.Password)))
+                {
+                    ModelState.AddModelError(string.Empty, "您的电子邮箱尚未进行验证。");
+                    return View(model);
+                }
+
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
 
                 if (result.Succeeded)
@@ -138,7 +148,26 @@ namespace StudentManagement.Controllers
                 return View("Login", loginViewModel);
             }
 
-            //如果用户之前已经登录过了，会在 AspNetUserLogins 表有对应的记录，这个时候无需创建新的记录，直接使用当前记录登录系统即可。
+            ApplicationUser user = null;
+
+            // 获取邮箱地址
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+
+            if (email != null)
+            {
+                // 通过邮箱地址去查询用户是否已存在
+                user = await _userManager.FindByEmailAsync(email);
+
+                // 如果电子邮件没有被确认，返回登录视图与验证错误
+                if (user != null && !user.EmailConfirmed)
+                {
+                    ModelState.AddModelError(string.Empty, "您的电子邮箱尚未进行验证。");
+
+                    return View("Login", loginViewModel);
+                }
+            }
+
+            // 如果用户之前已经登录过了，会在 AspNetUserLogins 表有对应的记录，这个时候无需创建新的记录，直接使用当前记录登录系统即可。
             var signInResult = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey,
                 isPersistent: false, bypassTwoFactor: true);
 
@@ -146,15 +175,10 @@ namespace StudentManagement.Controllers
             {
                 return LocalRedirect(returnUrl);
             }
-
-            // 如果 AspNetUserLogins 表中没有记录，则代表用户没有一个本地帐户，这个时候我们就需要创建一个记录了。
-            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
-
+            
+            // 如果AspNetUserLogins表中没有记录，则代表用户没有一个本地帐户，这个时候我们就需要创建一个记录了。
             if (email != null)
             {
-                // 通过邮箱地址去查询用户是否已存在
-                var user = await _userManager.FindByEmailAsync(email);
-
                 if (user == null)
                 {
                     user = new ApplicationUser
@@ -163,15 +187,15 @@ namespace StudentManagement.Controllers
                         Email = info.Principal.FindFirstValue(ClaimTypes.Email)
                     };
 
-                    // 如果不存在，则创建一个用户，但是这个用户没有密码。
+                    //如果不存在，则创建一个用户，但是这个用户没有密码。
                     await _userManager.CreateAsync(user);
+
+                    // 在AspNetUserLogins表中,添加一行用户数据，然后将当前用户登录到系统中
+                    await _userManager.AddLoginAsync(user, info);
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+
+                    return LocalRedirect(returnUrl);
                 }
-
-                // 在 AspNetUserLogins 表中,添加一行用户数据，然后将当前用户登录到系统中
-                await _userManager.AddLoginAsync(user, info);
-                await _signInManager.SignInAsync(user, isPersistent: false);
-
-                return LocalRedirect(returnUrl);
             }
 
             // 如果我们获取不到电子邮件地址，我们需要将请求重定向到错误视图中。
