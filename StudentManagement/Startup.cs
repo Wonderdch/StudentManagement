@@ -87,6 +87,10 @@ namespace StudentManagement
             {
                 opt.ClientId = _configuration["Authentication:Microsoft:ClientId"];
                 opt.ClientSecret = _configuration["Authentication:Microsoft:ClientSecret"];
+            }).AddGitHub(opt =>
+            {
+                opt.ClientId = _configuration["Authentication:GitHub:ClientId"];
+                opt.ClientSecret = _configuration["Authentication:GitHub:ClientSecret"];
             });
 
             //services.AddMvcCore().AddJsonFormatters();
