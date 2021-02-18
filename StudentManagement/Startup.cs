@@ -61,7 +61,8 @@ namespace StudentManagement
             // 1.添加 Identity 服务    2.使用 AppDbContext 存储与身份认证相关的数据
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddErrorDescriber<CustomIdentityErrorDescriptor>()
-                .AddEntityFrameworkStores<AppDbContext>();
+                .AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders();
 
             // 使用声明式授权
             services.AddAuthorization(options =>

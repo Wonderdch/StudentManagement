@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using StudentManagement.Models;
 using StudentManagement.ViewModels;
 
@@ -16,10 +17,13 @@ namespace StudentManagement.Controllers
 
         private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        private readonly ILogger _logger;
+
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ILogger<AccountController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -44,14 +48,23 @@ namespace StudentManagement.Controllers
 
                 if (result.Succeeded)
                 {
+                    // 生成电子邮件确认令牌
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                    // 生成电子邮件的确认链接
+                    var confirmationLink = Url.Action("ConfirmEmail", "Account",
+                        new { userId = user.Id, token = token }, Request.Scheme);
+
+                    _logger.Log(LogLevel.Warning, confirmationLink);
+
                     if (_signInManager.IsSignedIn(User) && User.IsInRole("Admin"))
                     {
                         return RedirectToAction("ListUsers", "Admin");
                     }
 
-                    await _signInManager.SignInAsync(user, false);
-
-                    return RedirectToAction("Index", "Home");
+                    ViewBag.ErrorTitle = "注册成功";
+                    ViewBag.ErrorMessage = "在你登入系统前,我们已经给您发了一份邮件，需要您先进行邮件验证，点击确认链接即可完成。";
+                    return View("Error");
                 }
 
                 foreach (var error in result.Errors)
@@ -175,7 +188,7 @@ namespace StudentManagement.Controllers
             {
                 return LocalRedirect(returnUrl);
             }
-            
+
             // 如果AspNetUserLogins表中没有记录，则代表用户没有一个本地帐户，这个时候我们就需要创建一个记录了。
             if (email != null)
             {
@@ -206,6 +219,37 @@ namespace StudentManagement.Controllers
         }
 
         #endregion
+
+        #region 确认邮箱
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            if (userId == null || token == null)
+            {
+                return RedirectToAction("index", "home");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"当前{userId}无效";
+                return View("NotFound");
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+
+            if (result.Succeeded)
+            {
+                return View();
+            }
+
+            ViewBag.ErrorTitle = "您的电子邮箱尚未进行验证。";
+            return View("Error");
+        }
+
+        #endregion 确认邮箱
 
         [HttpPost]
         public async Task<IActionResult> Logout()

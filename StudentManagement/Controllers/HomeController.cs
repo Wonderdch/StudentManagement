@@ -15,7 +15,7 @@ namespace StudentManagement.Controllers
 
         private readonly IHostingEnvironment _hostingEnvironment;
 
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger _logger;
 
         // 使用构造函数注入的方式注入 IStudentRepository
         public HomeController(IStudentRepository studentRepository, IHostingEnvironment hostingEnvironment, ILogger<HomeController> logger)

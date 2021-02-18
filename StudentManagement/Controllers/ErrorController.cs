@@ -8,7 +8,7 @@ namespace StudentManagement.Controllers
     [AllowAnonymous]
     public class ErrorController : Controller
     {
-        private readonly ILogger<ErrorController> _logger;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// 通过依赖注入服务，注入 ILogger
