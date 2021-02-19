@@ -63,7 +63,7 @@ namespace StudentManagement.Controllers
                     }
 
                     ViewBag.ErrorTitle = "注册成功";
-                    ViewBag.ErrorMessage = "在你登入系统前,我们已经给您发了一份邮件，需要您先进行邮件验证，点击确认链接即可完成。";
+                    ViewBag.ErrorMessage = "在你登入系统前，我们已经给您发了一份邮件，需要您先进行邮件验证，点击确认链接即可完成。";
                     return View("Error");
                 }
 
@@ -189,7 +189,7 @@ namespace StudentManagement.Controllers
                 return LocalRedirect(returnUrl);
             }
 
-            // 如果AspNetUserLogins表中没有记录，则代表用户没有一个本地帐户，这个时候我们就需要创建一个记录了。
+            // 如果 AspNetUserLogins 表中没有记录，则代表用户没有一个本地帐户，这个时候我们就需要创建一个记录了。
             if (email != null)
             {
                 if (user == null)
@@ -203,12 +203,22 @@ namespace StudentManagement.Controllers
                     //如果不存在，则创建一个用户，但是这个用户没有密码。
                     await _userManager.CreateAsync(user);
 
-                    // 在AspNetUserLogins表中,添加一行用户数据，然后将当前用户登录到系统中
-                    await _userManager.AddLoginAsync(user, info);
-                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-                    return LocalRedirect(returnUrl);
+                    var confirmationLink = Url.Action("ConfirmEmail", "Account", new {userId = user.Id, token = token},
+                        Request.Scheme);
+
+                    _logger.Log(LogLevel.Warning, confirmationLink);
+                    ViewBag.ErrorTitle = "注册成功";
+                    ViewBag.ErrorMessage = "在你登入系统前，我们已经给您发了一份邮件，需要您先进行邮件验证，点击确认链接即可完成。";
+                    return View("Error");
                 }
+
+                // 在 AspNetUserLogins 表中,添加一行用户数据，然后将当前用户登录到系统中
+                await _userManager.AddLoginAsync(user, info);
+                await _signInManager.SignInAsync(user, isPersistent: false);
+
+                return LocalRedirect(returnUrl);
             }
 
             // 如果我们获取不到电子邮件地址，我们需要将请求重定向到错误视图中。
