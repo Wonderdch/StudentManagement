@@ -205,7 +205,7 @@ namespace StudentManagement.Controllers
 
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-                    var confirmationLink = Url.Action("ConfirmEmail", "Account", new {userId = user.Id, token = token},
+                    var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token = token },
                         Request.Scheme);
 
                     _logger.Log(LogLevel.Warning, confirmationLink);
@@ -260,6 +260,52 @@ namespace StudentManagement.Controllers
         }
 
         #endregion 确认邮箱
+
+        #region 激活邮箱
+
+        [HttpGet]
+        public IActionResult ActivateUserEmail()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ActivateUserEmail(EmailAddressViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+
+                // 当前已经存在老用户时    1.生成电子令牌    2.以及电子令牌确认URL
+                if (user != null)
+                {
+                    if (!await _userManager.IsEmailConfirmedAsync(user))
+                    {
+                        // 生成电子邮件确认令牌
+                        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                        // 生成电子邮件的确认链接
+                        var confirmationLink = Url.Action("ConfirmEmail", "Account",
+                            new { userId = user.Id, token = token }, Request.Scheme);
+
+                        _logger.Log(LogLevel.Warning, confirmationLink);
+                        ViewBag.Message = "如果你在我们系统有注册账户，我们已经发了邮件到您的邮箱中，请前往邮箱激活您的用户。";
+
+                        // 重定向用户到忘记密码确认视图
+                        return View("ActivateUserEmailConfirmation", ViewBag.Message);
+                    }
+                }
+
+                ViewBag.Message = "请确认邮箱是否存在异常，现在我们无法给您发送激活链接。";
+
+                // 为了避免帐户枚举和暴力攻击，所以不进行用户不存在或邮箱未验证的提示
+                return View("ActivateUserEmailConfirmation", ViewBag.Message);
+            }
+
+            return View();
+        }
+
+        #endregion 激活邮箱
 
         [HttpPost]
         public async Task<IActionResult> Logout()
