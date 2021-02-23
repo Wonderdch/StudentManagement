@@ -54,7 +54,7 @@ namespace StudentManagement.Controllers
 
                     // 生成电子邮件的确认链接
                     var confirmationLink = Url.Action("ConfirmEmail", "Account",
-                        new { userId = user.Id, token = token }, Request.Scheme);
+                        new { userId = user.Id, token }, Request.Scheme);
 
                     _logger.Log(LogLevel.Warning, confirmationLink);
 
@@ -206,7 +206,7 @@ namespace StudentManagement.Controllers
 
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-                    var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token = token },
+                    var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token },
                         Request.Scheme);
 
                     _logger.Log(LogLevel.Warning, confirmationLink);
@@ -287,7 +287,7 @@ namespace StudentManagement.Controllers
 
                         // 生成电子邮件的确认链接
                         var confirmationLink = Url.Action("ConfirmEmail", "Account",
-                            new { userId = user.Id, token = token }, Request.Scheme);
+                            new { userId = user.Id, token }, Request.Scheme);
 
                         _logger.Log(LogLevel.Warning, confirmationLink);
                         ViewBag.Message = "如果你在我们系统有注册账户，我们已经发了邮件到您的邮箱中，请前往邮箱激活您的用户。";
@@ -332,7 +332,7 @@ namespace StudentManagement.Controllers
 
                     // 生成密码重置链接
                     var passwordResetLink = Url.Action("ResetPassword", "Account",
-                            new { email = model.Email, token = token }, Request.Scheme);
+                            new { email = model.Email, token }, Request.Scheme);
 
                     // 将密码重置链接记录到文件中
                     _logger.Log(LogLevel.Warning, passwordResetLink);
