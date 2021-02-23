@@ -42,6 +42,10 @@ namespace StudentManagement
                 options.SignIn.RequireConfirmedEmail = true;
             });
 
+            // Token 有效期修改为 10s
+            //services.Configure<DataProtectionTokenProviderOptions>(
+            //    opt => opt.TokenLifespan = TimeSpan.FromSeconds(10));
+
             services.ConfigureApplicationCookie(options =>
             {
                 // 修改拒绝访问的路由地址
