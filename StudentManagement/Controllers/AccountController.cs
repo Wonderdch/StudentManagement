@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -306,6 +307,100 @@ namespace StudentManagement.Controllers
         }
 
         #endregion 激活邮箱
+
+        #region 找回密码 & 重置密码
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(EmailAddressViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // 通过邮件地址查询用户地址
+                var user = await _userManager.FindByEmailAsync(model.Email);
+
+                // 如果找到了用户并且确认了电子邮件
+                if (user != null && await _userManager.IsEmailConfirmedAsync(user))
+                {
+                    // 生成重置密码令牌
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+                    // 生成密码重置链接
+                    var passwordResetLink = Url.Action("ResetPassword", "Account",
+                            new { email = model.Email, token = token }, Request.Scheme);
+
+                    // 将密码重置链接记录到文件中
+                    _logger.Log(LogLevel.Warning, passwordResetLink);
+
+                    // 重定向用户到忘记密码确认视图
+                    return View("ForgotPasswordConfirmation");
+                }
+
+                // 为了避免帐户穷举和暴力攻击，所以不进行用户不存在或邮箱未验证的提示
+                return View("ForgotPasswordConfirmation");
+            }
+
+            return View(model);
+        }
+
+        // 电子邮箱，重置密码的 token，新密码，确认密码
+        [HttpGet]
+        public IActionResult ResetPassword(string token, string email)
+        {
+            // 如果密码的 token 或者邮箱地址为空，用户有可能在试图篡改密码重置的 URL
+            if (token == null || email == null)
+            {
+                ModelState.AddModelError("", "当前的密码重置令牌无效");
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // 通过电子邮件查找用户
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user != null)
+                {
+                    // 重置用户密码
+                    var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+
+                    if (result.Succeeded)
+                    {
+                        // 密码成功重置后，如果当前账户被锁定，则设置该账户锁定结束日期为当前 UTC 日期时间。
+                        // 这样用户就可以用新密码登录系统。
+                        if (await _userManager.IsLockedOutAsync(user))
+                        {
+                            // DateTimeOffset 指 UTC 时间即格林威治时间
+                            await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow);
+                        }
+                        return View("ResetPasswordConfirmation");
+                    }
+
+                    // 告诉它验证不通过的错误信息
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                    return View(model);
+                }
+
+                // 为了避免帐户穷举和暴力攻击，不要提示用户不存在
+                return View("ResetPasswordConfirmation");
+            }
+            // 如果模型验证未通过，则显示验证错误
+            return View(model);
+        }
+
+        #endregion 找回密码 & 重置密码
 
         [HttpPost]
         public async Task<IActionResult> Logout()
