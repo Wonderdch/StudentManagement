@@ -11,6 +11,7 @@ using StudentManagement.Data;
 using StudentManagement.Middlewares;
 using StudentManagement.Models;
 using StudentManagement.Security;
+using StudentManagement.Security.CustomTokenProvider;
 
 namespace StudentManagement
 {
@@ -40,11 +41,20 @@ namespace StudentManagement
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireUppercase = false;
                 options.SignIn.RequireConfirmedEmail = true;
+
+                // 通过自定义的CustomEmailConfirmation名称来覆盖旧有token名称，
+                // 是它与AddTokenProvider<CustomEmailConfirmationTokenProvider<ApplicationUser>>("ltmEmailConfirmation")
+                // 关联在一起
+                options.Tokens.EmailConfirmationTokenProvider = "ItmEmailConfirmation";
             });
 
-            // Token 有效期修改为 10s
-            //services.Configure<DataProtectionTokenProviderOptions>(
-            //    opt => opt.TokenLifespan = TimeSpan.FromSeconds(10));
+            // Token 有效期修改为 10h
+            services.Configure<DataProtectionTokenProviderOptions>(
+                opt => opt.TokenLifespan = TimeSpan.FromHours(10));
+
+            // 仅更改电子邮件验证令牌类型的有效时间为 10s
+            services.Configure<CustomEmailConfirmationTokenProviderOptions>(
+                opt => opt.TokenLifespan = TimeSpan.FromMilliseconds(10));
 
             services.ConfigureApplicationCookie(options =>
             {
@@ -66,7 +76,8 @@ namespace StudentManagement
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddErrorDescriber<CustomIdentityErrorDescriptor>()
                 .AddEntityFrameworkStores<AppDbContext>()
-                .AddDefaultTokenProviders();
+                .AddDefaultTokenProviders()
+                .AddTokenProvider<CustomEmailConfirmationTokenProvider<ApplicationUser>>("ItmEmailConfirmation");
 
             // 使用声明式授权
             services.AddAuthorization(options =>
